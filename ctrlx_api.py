@@ -217,6 +217,7 @@ class CtrlXSubscription:
                     else:  # empty line = event delimiter
                         # Parse event in buffer
                         event = parse_sse_event(buffer)
+                        print(event)
                         fn_hdl(event)
                         buffer = ""
                     if close.is_set():

@@ -9,7 +9,7 @@ def read_data(event):
 
 if __name__ == '__main__':
     # Create API Object
-    api = ctrlx_api.CtrlxApi(ip_addr='192.168.1.1',usr='boschrexroth', password='boschrexroth')
+    api = ctrlx_api.CtrlxApi(ip_addr='192.168.10.175',usr='boschrexroth', password='boschrexroth')
     # Connect to the Ctrlx Core
     ok, _  = api.connect()
     # Create A node object using the API
@@ -22,5 +22,19 @@ if __name__ == '__main__':
     pprint.pprint(r.json())
     gantry1 = Gantry(api)
     gantry1.start()
-    print("Debug file path:", __file__)
+    subscription_id = 'Gantry-Feedback2'
+    settings = ctrlx_api.CtrlxSubscriptionSettings(subscription_id, '200', '400',
+                                                   ['motion/kin/Kinematics/state/idle'],
+                                                   keepaliveInterval='100000')
+    ctrlx_api.create_subscription(api, settings)
+    subscription = ctrlx_api.CtrlXSubscription(api)
+    subscription.subscribe(subscription_id, gantry1.OnMessage)
+    time.sleep(300)
+    # unsubscribe to the data
+    subscription.unsubscribe()
+    # close subscription
+    ctrlx_api.close_subscription(api, subscription_id)
+    time.sleep(10)
+    gantry1.stop()
+
 
